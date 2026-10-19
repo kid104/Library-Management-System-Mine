@@ -61,10 +61,10 @@ class TopHeader extends StatelessWidget {
                   context.go('/reader/home');
                   break;
                 case UserRole.librarian:
-                  context.go('/librarian/home');
+                  context.go('/librarian/circulation');
                   break;
                 case UserRole.admin:
-                  context.go('/admin/dashboard');
+                  context.go('/admin/settings');
                   break;
               }
             },

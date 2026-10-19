@@ -86,12 +86,6 @@ class LeftSidebar extends StatelessWidget {
                   ),
                 ] else if (auth.currentRole == UserRole.librarian) ...[
                   _NavItem(
-                    icon: Icons.home_outlined,
-                    label: 'Home',
-                    route: '/librarian/home',
-                    isActive: currentPath == '/librarian/home',
-                  ),
-                  _NavItem(
                     icon: Icons.swap_horiz,
                     label: 'Borrow & Return',
                     route: '/librarian/circulation',
@@ -105,12 +99,7 @@ class LeftSidebar extends StatelessWidget {
                     isActive: currentPath == '/librarian/notifications',
                   ),
                 ] else if (auth.currentRole == UserRole.admin) ...[
-                  _NavItem(
-                    icon: Icons.home_outlined,
-                    label: 'Dashboard',
-                    route: '/admin/dashboard',
-                    isActive: currentPath == '/admin/dashboard',
-                  ),
+               
                   _NavItem(
                     icon: Icons.settings_outlined,
                     label: 'LMS Settings',

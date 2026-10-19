@@ -6,6 +6,11 @@ import '../screens/reader/reader_reservation_screen.dart';
 import '../screens/reader/my_books_screen.dart';
 import '../screens/shell/main_layout_shell.dart';
 import '../screens/reader/reader_home_screen.dart';
+import '../screens/librarian/borrow_return_desk_screen.dart';
+import '../screens/librarian/librarian_notification_screen.dart';
+import '../screens/admin/book_inventory_screen.dart';
+import '../screens/admin/staff_management_screen.dart';
+import '../screens/admin/lms_settings_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> _shellNavigatorKey =
@@ -43,65 +48,33 @@ final GoRouter appRouter = GoRouter(
 
         // Librarian routes
         GoRoute(
-          path: '/librarian/home',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: _PlaceholderScreen(title: 'Librarian Dashboard'),
-          ),
-        ),
-        GoRoute(
           path: '/librarian/circulation',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: _PlaceholderScreen(title: 'Borrow & Return Desk'),
-          ),
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: BorrowReturnDeskScreen()),
         ),
         GoRoute(
           path: '/librarian/notifications',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: _PlaceholderScreen(title: 'Librarian Notifications'),
-          ),
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: LibrarianNotificationsScreen()),
         ),
 
         // Admin routes
         GoRoute(
-          path: '/admin/dashboard',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: _PlaceholderScreen(title: 'Admin Dashboard'),
-          ),
-        ),
-        GoRoute(
           path: '/admin/settings',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: _PlaceholderScreen(title: 'LMS Settings'),
-          ),
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: LmsSettingsScreen()),
         ),
         GoRoute(
           path: '/admin/staff',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: _PlaceholderScreen(title: 'Staff Management'),
-          ),
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: StaffManagementScreen()),
         ),
         GoRoute(
           path: '/admin/inventory',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: _PlaceholderScreen(title: 'Book Inventory'),
-          ),
+          pageBuilder: (context, state) =>
+              const NoTransitionPage(child: BookInventoryScreen()),
         ),
       ],
     ),
   ],
 );
-
-class _PlaceholderScreen extends StatelessWidget {
-  final String title;
-  const _PlaceholderScreen({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-}

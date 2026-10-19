@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import '../models/book.dart';
 import '../models/borrow_record.dart';
 
 class CirculationProvider extends ChangeNotifier {
-  // Currently active borrowed books matching Readerhom2 mockup
+  // ---------------------------------------------------------------------------
+  // Reader History Data (Readerhom2)
+  // ---------------------------------------------------------------------------
   final List<BorrowRecord> _activeBorrows = [
     const BorrowRecord(
       id: 'b1',
@@ -39,7 +42,6 @@ class CirculationProvider extends ChangeNotifier {
     ),
   ];
 
-  // Borrowing history entries matching Readerhom2 table
   final List<BorrowRecord> _borrowingHistory = [
     const BorrowRecord(
       id: 'h1',
@@ -77,42 +79,126 @@ class CirculationProvider extends ChangeNotifier {
       dueCountdown: '',
       status: CirculationStatus.returned,
     ),
-    const BorrowRecord(
-      id: 'h4',
-      bookTitle: 'The Pragmatic Programmer',
-      author: 'David Thomas',
-      category: 'Computer Science',
-      isbn: '978-0135957059',
-      borrowedDate: 'Aug 20, 2026',
-      dueDate: 'Sep 3, 2026',
-      returnedDate: 'Sep 3, 2026',
-      dueCountdown: '',
-      status: CirculationStatus.returned,
-    ),
-    const BorrowRecord(
-      id: 'h5',
-      bookTitle: 'Thinking, Fast and Slow',
-      author: 'Daniel Kahneman',
-      category: 'Psychology',
-      isbn: '978-0374533557',
-      borrowedDate: 'Aug 5, 2026',
-      dueDate: 'Aug 19, 2026',
-      returnedDate: 'Aug 19, 2026',
-      dueCountdown: '',
-      status: CirculationStatus.returned,
-    ),
   ];
 
   List<BorrowRecord> get activeBorrows => _activeBorrows;
   List<BorrowRecord> get borrowingHistory => _borrowingHistory;
-
   int get currentlyBorrowedCount => _activeBorrows.length;
   int get dueSoonCount => 1;
   int get overdueCount => 0;
   int get completedCount => 8;
 
-  void renewBook(String recordId) {
-    // Will be wired to Spring Boot endpoint POST /api/v1/circulations/{id}/renew
+  // ---------------------------------------------------------------------------
+  // Librarian Desk State (librarian 2)
+  // ---------------------------------------------------------------------------
+  Book? checkedBook;
+  StudentVerification? verifiedStudent;
+  bool isCheckingStock = false;
+  String? stockErrorMessage;
+
+  final String borrowDate = '2025-06-08';
+  final String calculatedDueDate = '2025-06-22 (14 days)';
+
+  LoanReturnAssessment? activeReturnAssessment;
+  BookCondition selectedCondition = BookCondition.good;
+  bool isSearchingReturnRecord = false;
+  String? returnErrorMessage;
+
+  // Check Availability button handler
+  void checkAvailability(String studentId, String bookQuery) {
+    isCheckingStock = true;
+    stockErrorMessage = null;
+    notifyListeners();
+
+    if (studentId.trim().isEmpty || bookQuery.trim().isEmpty) {
+      stockErrorMessage = 'Please enter both Student ID and Book ISBN/Title.';
+      isCheckingStock = false;
+      notifyListeners();
+      return;
+    }
+
+    verifiedStudent = StudentVerification(
+      studentId: studentId.trim(),
+      name: 'Abebe Kebede',
+      department: 'Computer Science',
+      activeLoansCount: 2,
+    );
+
+    if (bookQuery.toLowerCase().contains('unavailable') || bookQuery == '0') {
+      checkedBook = null;
+      stockErrorMessage = 'Book is currently OUT OF STOCK (0 copies available).';
+    } else {
+      checkedBook = Book(
+        id: 'b-gatsby',
+        title: bookQuery.length > 10 ? 'The Great Gatsby' : bookQuery,
+        author: 'F. Scott Fitzgerald',
+        isbn: '978-0132357059',
+        category: 'Fiction',
+        totalCopies: 6,
+        availableCopies: 4,
+      );
+    }
+
+    isCheckingStock = false;
+    notifyListeners();
+  }
+
+  // Find Active Loan Record button handler
+  void searchBorrowRecord(String studentId, String bookQuery) {
+    isSearchingReturnRecord = true;
+    returnErrorMessage = null;
+    notifyListeners();
+
+    if (studentId.trim().isEmpty || bookQuery.trim().isEmpty) {
+      returnErrorMessage = 'Enter Student ID and Book Title/ISBN to inspect record.';
+      isSearchingReturnRecord = false;
+      notifyListeners();
+      return;
+    }
+
+    activeReturnAssessment = const LoanReturnAssessment(
+      recordId: 'rec-901',
+      studentName: 'Abebe Kebede',
+      bookTitle: 'The Great Gatsby',
+      isbn: '978-0132357059',
+      borrowDate: '2025-06-08',
+      dueDate: '2025-06-22',
+      overdueDays: 5,
+      dailyFineRate: 0.40,
+      totalFine: 2.00,
+    );
+
+    isSearchingReturnRecord = false;
+    notifyListeners();
+  }
+
+  void setCondition(BookCondition condition) {
+    selectedCondition = condition;
+    notifyListeners();
+  }
+
+  void confirmBorrowing(BuildContext context) {
+    if (checkedBook == null || verifiedStudent == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Issued "${checkedBook!.title}" to ${verifiedStudent!.name} successfully!'),
+        backgroundColor: const Color(0xFF059669),
+      ),
+    );
+    checkedBook = null;
+    verifiedStudent = null;
+    notifyListeners();
+  }
+
+  void confirmReturn(BuildContext context) {
+    if (activeReturnAssessment == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Return completed for "${activeReturnAssessment!.bookTitle}". Condition: ${selectedCondition.name}.'),
+        backgroundColor: const Color(0xFF059669),
+      ),
+    );
+    activeReturnAssessment = null;
     notifyListeners();
   }
 }
